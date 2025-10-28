@@ -17,5 +17,11 @@
   "bugs": {
     "url": "https://github.com/AndyTex2003/ppp-turma2/issues"
   },
-  "homepage": "https://github.com/AndyTex2003/ppp-turma2#readme"
+  "homepage": "https://github.com/AndyTex2003/ppp-turma2#readme",
+  "dependencies": {
+    "body-parser": "^2.2.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "swagger-ui-express": "^5.0.1"
+  }
 }

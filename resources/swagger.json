@@ -1,0 +1,305 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Catálogo de Filmes",
+    "version": "1.0.0",
+    "description": "API para registro e consulta de filmes e gêneros. Autenticação via JWT."
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Login de usuário ou administrador",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" },
+                  "role": { "type": "string", "enum": ["admin", "user"] }
+                },
+                "required": ["username", "password", "role"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer" },
+                    "username": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "409": { "description": "Usuário já existe" }
+        }
+      }
+    },
+    "/admins/register": {
+      "post": {
+        "summary": "Registrar administrador",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Administrador criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer" },
+                    "username": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "409": { "description": "Administrador já existe" }
+        }
+      }
+    },
+    "/users/register": {
+      "post": {
+        "summary": "Registrar usuário",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": { "type": "string" },
+                  "password": { "type": "string" }
+                },
+                "required": ["username", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Usuário criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer" },
+                    "username": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "409": { "description": "Usuário já existe" }
+        }
+      }
+    },
+    "/movies/register": {
+      "post": {
+        "summary": "Registrar filme (admin)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "genreId": { "type": "integer" },
+                  "actorIds": { "type": "array", "items": { "type": "integer" } }
+                },
+                "required": ["title", "genreId", "actorIds"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Filme criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer" },
+                    "title": { "type": "string" },
+                    "genre": { "type": "string" },
+                    "actorIds": { "type": "array", "items": { "type": "integer" } }
+                  }
+                }
+              }
+            }
+          },
+          "409": { "description": "Filme já existe" },
+          "401": { "description": "Token não fornecido ou inválido" },
+          "403": { "description": "Acesso negado" }
+        }
+      }
+    },
+    "/movies": {
+      "get": {
+        "summary": "Listar filmes (autenticado)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de filmes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Movie" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Token não fornecido ou inválido" }
+        }
+      }
+    },
+    "/movies/{id}": {
+      "delete": {
+        "summary": "Deletar filme (admin)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Filme deletado com sucesso" },
+          "404": { "description": "Filme não encontrado" },
+          "401": { "description": "Token não fornecido ou inválido" },
+          "403": { "description": "Acesso negado" }
+        }
+      }
+    },
+    "/genres/register": {
+      "post": {
+        "summary": "Registrar gênero (admin)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" }
+                },
+                "required": ["name"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Gênero criado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Genre" }
+              }
+            }
+          },
+          "409": { "description": "Gênero já existe" },
+          "401": { "description": "Token não fornecido ou inválido" },
+          "403": { "description": "Acesso negado" }
+        }
+      }
+    },
+    "/genres": {
+      "get": {
+        "summary": "Listar gêneros (autenticado)",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Lista de gêneros",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Genre" }
+                }
+              }
+            }
+          },
+          "401": { "description": "Token não fornecido ou inválido" }
+        }
+      }
+    },
+    "/genres/{id}": {
+      "delete": {
+        "summary": "Deletar gênero (admin)",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Gênero deletado com sucesso" },
+          "404": { "description": "Gênero não encontrado" },
+          "401": { "description": "Token não fornecido ou inválido" },
+          "403": { "description": "Acesso negado" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Movie": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "title": { "type": "string" },
+          "genre": { "type": "string" }
+        }
+      },
+      "Genre": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [{ "bearerAuth": [] }]
+}
