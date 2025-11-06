@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha test/**/*.spec.js --reporter mochawesome --reporter-options reportDir=relatorios,reportFilename=relatorio_final,html=true,json=false,overwrite=true"
   },
   "repository": {
     "type": "git",
@@ -23,5 +23,12 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "chai": "^4.5.0",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.8.2",
+    "mochawesome": "^7.1.4",
+    "supertest": "^7.1.4"
   }
 }

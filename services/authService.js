@@ -5,7 +5,10 @@ const { users, admins } = require('./db');
 
 function authenticate(username, password, role) {
   const list = role === 'admin' ? admins : users;
-  const user = list.find(u => u.username === username && u.password === password);
+  const user = list.find(u => 
+        String(u.username) === String(username) && 
+        String(u.password) === String(password)
+    );
   if (!user) return null;
   const token = jwt.sign({ id: user.id, role: user.role }, SECRET, { expiresIn: '1h' });
   return { token };
