@@ -1,7 +1,6 @@
-git add README.md
-cat > README.md <<EOLclear
+# API Catálogo de Filmes
 
-o e consulta de filmes e gêneros, com autenticação via JWT.  
+API para registro e consulta de filmes e gêneros, com autenticação via JWT.  
 Projeto desenvolvido como portfólio da Mentoria em Testes de Software.
 
 ---
