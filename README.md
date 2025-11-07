@@ -1,93 +1,126 @@
-# API Catálogo de Filmes
+git add README.md
+cat > README.md <<EOLclear
 
-## Descrição
-API REST para registro e consulta de filmes e gêneros. Utiliza autenticação JWT e banco de dados em memória. Documentação disponível via Swagger.
+o e consulta de filmes e gêneros, com autenticação via JWT.  
+Projeto desenvolvido como portfólio da Mentoria em Testes de Software.
 
-## Funcionalidades
-- Registro de Administrador
-- Registro de Usuário
-- Registro de Filmes
-- Registro de Gêneros dos Filmes
-- Busca de Filmes
-- Busca de Gêneros dos Filmes
-- Deleção de Filmes
-- Deleção de Gêneros
+---
 
-## Regras de Acesso
-- Administradores: acesso total (registro, consulta e deleção)
-- Usuários: apenas consulta (filmes, gêneros)
-- Autenticação obrigatória via JWT
+## 🚀 Funcionalidades
 
-## Estrutura do Projeto
-- `routes/` - Rotas da API
-- `controllers/` - Lógica dos endpoints
-- `services/` - Serviços e banco de dados em memória
-- `models/` - Modelos de dados
-- `middleware/` - Middleware de autenticação
-- `resources/` - Documentação Swagger
+- Registro de usuários e administradores
+- Login com JWT
+- CRUD de gêneros (Admin)
+- CRUD de filmes (Admin)
+- Listagem de filmes e gêneros (usuário autenticado)
+- Permissões de acesso diferenciadas entre usuário e admin
+- Documentação Swagger acessível em \`/docs\`
+- Testes automatizados usando Mocha, Chai e Supertest
+- Relatórios de teste HTML gerados automaticamente
 
-## Documentação Swagger
-Acesse a documentação em [http://localhost:3000/docs](http://localhost:3000/docs)
+---
 
-## Como Executar
-1. Instale as dependências:
-   ```bash
-   npm install express swagger-ui-express jsonwebtoken body-parser
-   ```
-2. Inicie o servidor:
-   ```bash
-   node index.js
-   ```
-3. Acesse a API em [http://localhost:3000](http://localhost:3000)
+## 🛠️ Tecnologias
 
-## Fluxo recomendado para testes da API
+- Node.js
+- Express
+- JSON Web Token (JWT)
+- Mocha + Chai + Supertest
+- Swagger (OpenAPI 3.0)
 
-1. **Cadastre os gêneros**
-   - Use o endpoint `POST /genres/register` para criar os gêneros desejados (ex: Romance, Ação, Comédia).
-   - Guarde os ids retornados para usar ao cadastrar filmes.
+---
 
-2. **Cadastre os filmes**
-   - Use o endpoint `POST /movies/register`.
-   - Informe o `genreId` (id do gênero cadastrado) no corpo da requisição.
-   - Exemplo:
-     ```json
-     {
-       "title": "Titanic",
-       "genreId": 1
-     }
-     ```
+## ⚡ Pré-requisitos
 
-**Observação:**
-- Sempre cadastre gêneros antes de cadastrar filmes.
-- Utilize os ids retornados nos cadastros anteriores para relacionar corretamente os dados.
+- Node.js >= 18
+- npm
 
-## Exemplos de Uso
-### Login
-```json
-POST /auth/login
-{
-  "username": "admin",
-  "password": "123",
-  "role": "admin"
-}
-```
-### Registro de Filme (admin)
-```json
-POST /movies/register
-Authorization: Bearer <token>
-{
-  "title": "Filme X",
-  "genreId": 1
-}
-```
-### Consulta de Filmes (usuário)
-```json
-GET /movies
-Authorization: Bearer <token>
-```
+---
 
-## Dependências
-- express
-- swagger-ui-express
-- jsonwebtoken
-- body-parser
+## 💻 Instalação
+
+1. Clone o repositório:
+
+\`\`\`bash
+git clone https://github.com/AndyTex2003/ppp-turma2.git
+cd ppp-turma2
+\`\`\`
+
+2. Instale as dependências:
+
+\`\`\`bash
+npm install
+\`\`\`
+
+---
+
+## 🏃‍♂️ Executando a API
+
+\`\`\`bash
+node index.js
+\`\`\`
+
+- Acesse a API: \`http://localhost:3000/\`
+- Swagger UI (documentação interativa): \`http://localhost:3000/docs\`
+
+---
+
+## 🧪 Executando Testes
+
+Todos os testes de autenticação, filmes, gêneros e permissões:
+
+\`\`\`bash
+npm test
+\`\`\`
+
+- Relatório HTML gerado em: \`relatorios/relatorio_final.html\`
+
+---
+
+## 🔒 Rotas principais
+
+| Método | Endpoint           | Descrição                  | Autenticação |
+|--------|------------------|----------------------------|--------------|
+| POST   | /users/register  | Registrar usuário          | Não          |
+| POST   | /admins/register | Registrar administrador    | Não          |
+| POST   | /auth/login      | Login (user/admin)         | Não          |
+| GET    | /movies          | Listar filmes              | JWT          |
+| POST   | /movies/register | Criar filme (Admin)        | JWT          |
+| DELETE | /movies/:id      | Deletar filme (Admin)      | JWT          |
+| GET    | /genres          | Listar gêneros             | JWT          |
+| POST   | /genres/register | Criar gênero (Admin)       | JWT          |
+| DELETE | /genres/:id      | Deletar gênero (Admin)     | JWT          |
+
+---
+
+## 📄 Estrutura do projeto
+
+\`\`\`
+controllers/       # Lógica das rotas
+models/            # Modelos de dados
+routes/            # Definição de rotas
+services/          # Serviços auxiliares (auth, DB)
+middlewares/       # Middlewares de autenticação
+resources/         # Documentação Swagger
+test/              # Testes automatizados
+relatorios/        # Relatórios de testes HTML
+index.js           # Arquivo principal
+package.json       # Dependências e scripts
+\`\`\`
+
+---
+
+## ⚙️ Notas
+
+- Usuário padrão: \`role = "user"\`
+- Administrador: \`role = "admin"\`
+- Senhas atualmente armazenadas em memória (hashing com bcrypt recomendado para produção)
+- Todos os testes passam e a documentação Swagger está funcional.
+
+---
+
+## 📌 Contato
+
+Anderson Batista dos Santos  
+[GitHub](https://github.com/AndyTex2003)
+EOL
