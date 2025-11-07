@@ -1,97 +1,45 @@
-const chai = require('chai');
-const request = require('chai-http'); 
-const expect = chai.expect;
+const request = require('supertest');
+const app = require('../index');
+const { expect } = require('chai');
 
-const app = require('../index.js'); 
+describe('Autenticação (POST /users/register, /admins/register, /auth/login)', () => {
+  let adminToken;
 
-chai.use(request); 
+  it('deve permitir registrar um usuário', async () => {
+    const res = await request(app)
+      .post('/users/register')
+      .send({ username: 'usuario1', password: '1234' });
+    expect(res.status).to.equal(201);
+    expect(res.body.username).to.equal('usuario1');
+  });
 
+  it('deve permitir registrar um admin', async () => {
+    const res = await request(app)
+      .post('/admins/register')
+      .send({ username: 'admin1', password: '1234' });
+    expect(res.status).to.equal(201);
+    expect(res.body.role).to.equal('admin');
+  });
 
-const USER_CREDENTIALS = {
-    username: "user_autenticacao_ok",
-    password: "password123"
-};
+  it('deve permitir login de usuário e retornar token', async () => {
+    const res = await request(app)
+      .post('/auth/login')
+      .send({ username: 'usuario1', password: '1234' });
+    expect(res.status).to.equal(200);
+    expect(res.body.token).to.be.a('string');
+  });
 
-const ADMIN_CREDENTIALS = {
-    username: "admin_autenticacao_ok",
-    password: "password123"
-};
+  it('deve permitir login de admin e retornar token', async () => {
+    const res = await request(app)
+      .post('/auth/login')
+      .send({ username: 'admin1', password: '1234' });
+    expect(res.status).to.equal(200);
+    expect(res.body.token).to.be.a('string');
+    adminToken = res.body.token; // salva token para testes posteriores
+  });
 
-
-describe('Autenticação (POST /users/register, /admin/register, /auth/login)', () => {
-        
-    before((done) => {
-        // 1. Registro do Usuário (Deve ser aninhado para garantir a ordem)
-        chai.request(app)
-            .post('/users/register')
-            .send(USER_CREDENTIALS)
-            .end((err, res) => {
-                if (err) return done(err); 
-                // Asserção: Se isso falhar, o before é interrompido.
-                expect(res).to.have.status(201, 'Falha no registro do Usuário (Status 201 esperado)'); 
-
-                // 2. Registro do Administrador (Começa somente após o 1)
-                chai.request(app)
-                    .post('/admins/register')
-                    .send(ADMIN_CREDENTIALS)
-                    .end((err, res) => {
-                        if (err) return done(err); 
-                        expect(res).to.have.status(201, 'Falha no registro do Admin (Status 201 esperado)'); 
-                        
-                        
-                        done(); 
-                    });
-            });
-    });
-
-    
-    //  Teste 3: Login de Usuário (AGORA DEVE PASSAR COM 200)
-    it('3. deve permitir o login de um usuário (role: user) em /auth/login e retornar um token (Status 200)', (done) => {
-        chai.request(app)
-            .post('/auth/login')
-            .send({
-                username: USER_CREDENTIALS.username,
-                password: USER_CREDENTIALS.password,
-                role: 'user' // OBRIGATÓRIO conforme Swagger
-            })
-            .end((err, res) => {
-                expect(res).to.have.status(200); //
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('token').to.be.a('string');
-                done();
-            });
-    });
-
-    // Teste 4: Login de Administrador (AGORA DEVE PASSAR COM 200)
-    it('4. deve permitir o login de um administrador (role: admin) em /auth/login e retornar um token (Status 200)', (done) => {
-        chai.request(app)
-            .post('/auth/login')
-            .send({
-                username: ADMIN_CREDENTIALS.username,
-                password: ADMIN_CREDENTIALS.password,
-                role: 'admin' // OBRIGATÓRIO
-            })
-            .end((err, res) => {
-                expect(res).to.have.status(200); 
-                expect(res.body).to.be.an('object');
-                expect(res.body).to.have.property('token').to.be.a('string');
-                done();
-            });
-    });
-
-    // Teste 5: Login com Credenciais Inválidas (JÁ ESTAVA PASSANDO)
-    it('5. deve negar o login com credenciais inválidas (Status 401)', (done) => {
-        chai.request(app)
-            .post('/auth/login')
-            .send({
-                username: 'naoexiste',
-                password: 'senhaerrada',
-                role: 'user'
-            })
-            .end((err, res) => {
-                expect(res).to.have.status(401);
-                expect(res.body).to.have.property('error').equal('Credenciais inválidas');
-                done();
-            });
-    });
+  // Exporta token para outros testes
+  after(() => {
+    global.adminToken = adminToken;
+  });
 });

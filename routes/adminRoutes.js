@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { registerAdmin, listAdmins } = require('../controllers/adminController');
-const { requireAuth } = require('../middleware/auth');
+const { verifyToken, isAdmin } = require('../middlewares/authMiddleware');
 
-router.post('/register', registerAdmin);
-router.get('/', requireAuth('admin'), listAdmins);
+router.get('/', verifyToken, isAdmin, (req, res) => {
+  res.status(200).json({ message: 'Acesso permitido ao Admin.' });
+});
 
 module.exports = router;
