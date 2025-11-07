@@ -1,20 +1,72 @@
-// Controller de Usuário
-const User = require('../models/user');
-const { users } = require('../services/db');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-function registerUser(req, res) {
-  const { username, password } = req.body;
-  if (users.find(u => u.username === username)) {
-    return res.status(409).json({ error: 'Usuário já existe' });
+// ===============================================
+// Registrar Usuário
+// ===============================================
+exports.registerUser = async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      // o teste espera texto “já existe” na mensagem
+      return res.status(400).json({ message: 'Usuário já existe com este e-mail.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      name,
+      email,
+      password: hashedPassword,
+      role: role || 'user',
+    });
+
+    return res.status(201).json({
+      message: 'Usuário criado com sucesso!',
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    console.error('Erro no registerUser:', err);
+    res.status(500).json({ message: 'Erro interno ao registrar usuário.' });
   }
-  const id = users.length + 1;
-  const user = new User(id, username, password, 'user');
-  users.push(user);
-  res.status(201).json({ id: user.id, username: user.username });
-}
+};
 
-function listUsers(req, res) {
-  res.json(users.map(u => ({ id: u.id, username: u.username })));
-}
+// ===============================================
+// Login
+// ===============================================
+exports.loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: 'Credenciais inválidas.' });
 
-module.exports = { registerUser, listUsers };
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) return res.status(400).json({ message: 'Credenciais inválidas.' });
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email, role: user.role },
+      process.env.JWT_SECRET || 'segredo_temporario',
+      { expiresIn: '1h' }
+    );
+
+    return res.status(200).json({
+      message: 'Login realizado com sucesso.',
+      token,
+      role: user.role,
+    });
+  } catch (err) {
+    console.error('Erro no loginUser:', err);
+    res.status(500).json({ message: 'Erro interno ao fazer login.' });
+  }
+};

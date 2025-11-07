@@ -1,10 +1,23 @@
 const express = require('express');
 const router = express.Router();
-const { registerMovie, listMovies, deleteMovie } = require('../controllers/movieController');
-const { requireAuth } = require('../middleware/auth');
+const { verifyToken, isAdmin } = require('../middlewares/authMiddleware'); 
+const { 
+    createMovie, 
+    listMovies, 
+    getMovie, 
+    deleteMovie 
+} = require('../controllers/movieController');
 
-router.post('/register', requireAuth('admin'), registerMovie);
-router.get('/', requireAuth(), listMovies);
-router.delete('/:id', requireAuth('admin'), deleteMovie);
+// 1. Criar Filme (POST - Protegido: Admin)
+router.post('/', [verifyToken, isAdmin], createMovie); 
+
+// 2. Listar Filmes (GET - Protegido: Todos (Autenticado))
+router.get('/', verifyToken, listMovies); 
+
+// 3. Obter Detalhes de um Filme (GET - Público: Todos)
+router.get('/:id', getMovie);
+
+// 4. Deletar Filme (DELETE - Protegido: Admin)
+router.delete('/:id', [verifyToken, isAdmin], deleteMovie);
 
 module.exports = router;
